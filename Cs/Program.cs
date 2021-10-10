@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cs
+﻿namespace Cs
 {
     internal static class Program
     {
