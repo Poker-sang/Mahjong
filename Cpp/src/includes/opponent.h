@@ -73,21 +73,21 @@ public:
 					if (static_cast<int>(*hands[i]) == (i + que - duo) << 3);		//如果刚好位置映射
 					else if (static_cast<int>(*hands[i]) == (i + que - duo - 1) << 3)		//如果和上张映射幺九牌一样
 					{
-						if (duo == true)		//如果已经有一个多的牌
+						if (duo)		//如果已经有一个多的牌
 							goto thirteen_orphans;
 						else duo = true;		//记录有多牌
 					}
 					else if (static_cast<int>(*hands[i]) == (i + que - duo + 1) << 3)		//如果和下张映射幺九牌一样
 					{
-						if (que == true)		//如果已经有一个缺牌
+						if (que)		//如果已经有一个缺牌
 							goto thirteen_orphans;		//不是国士
 						else que = true;		//记录有缺牌
 						que_tile = i << 3;		//记录缺的牌
 					}
 					else goto thirteen_orphans;		//有不是幺九即无听
-				if (duo == true)		//若有多张
+				if (duo)		//若有多张
 				{
-					if (que == true)
+					if (que)
 						ready_hands.emplace_back(que_tile);		//记听一面
 					else ready_hands.emplace_back(96);		//记听一面（中）（中在最后不会被que记录）
 				}
@@ -112,7 +112,7 @@ public:
 							dan_tile = static_cast<int>(*hands[i]);		//记录序号
 						}
 					}
-				if (dan == false)		//如果没查到单张
+				if (!dan)		//如果没查到单张
 					dan_tile = static_cast<int>(*hands[12]);		//那单张就是最后一个
 				ready_hands.emplace_back(dan_tile);		//记听一面
 				is_ready_hand = true;
@@ -169,8 +169,9 @@ public:
 				if (err_block_2 >= block_num)		//如果后者的数字大于等于组数
 					return;		//无听
 				bool temp = false;
-				if ((blocks[err_block_1].block_traversal(*this, false) && blocks[err_block_2].block_ignore_pair(*this) == true)		//满足任意一个，但是两条语句都要执行
-					| (blocks[err_block_2].block_traversal(*this, false) && blocks[err_block_1].block_ignore_pair(*this) == true))		//按位或不会出现短路
+				//去对和遍历顺序不能互换，因为如果遍历成功会直接写入铳牌，而去对成功不会写入铳牌，因为&&的短路所以去对写在前面
+				if (blocks[err_block_2].block_ignore_pair(*this) && blocks[err_block_1].block_traversal(*this, false)		//满足任意一个，但是两条语句都要执行
+					| blocks[err_block_1].block_ignore_pair(*this) && blocks[err_block_2].block_traversal(*this, false))		//按位或不会出现短路
 					break;		//听牌
 				else return;		//无听
 			}

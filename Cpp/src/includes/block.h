@@ -126,7 +126,7 @@ public:
 		if ((static_cast<int>(*op[loc + len - 1]) & 15) == 8 || static_cast<int>(*op[loc + len - 1]) >> 3 > 5)		//如果末张是九万、筒、索或字牌
 			--last;		//last没有后一张，减回op[loc]
 		block temp_block{ 0 };		//新牌组对应的块
-		temp_block.len = len + 1;
+		temp_block.len = this->len + 1;
 		auto temp_tile{ first };
 		auto temp{ 0 };
 		opponent temp_op;
@@ -141,8 +141,6 @@ public:
 			delete temp_op[temp];
 			temp_op.hands.clear();
 		}
-		if (op.ready_hands.empty())		//可能本来它就不为空，不过在这里不影响（将来算符时可能改动）
-			return false;
-		else return true;
+		return !op.ready_hands.empty();		//可能本来它就不为空，不过在这里不影响（将来算符时可能改动）
 	}
 };

@@ -20,5 +20,4 @@
 
         public Group(int loc) => Loc = loc;
     }
-
 }
