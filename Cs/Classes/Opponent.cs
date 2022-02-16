@@ -235,9 +235,9 @@ public class Opponent
             if (Hands.GetRelation(i) > 1)
             {
                 //记录上一块的长度
-                blocks.Last().Len = i - blocks.Last().FirstLoc + 1;
+                blocks[^1].Len = i - blocks[^1].FirstLoc + 1;
                 //筛选完整型Lv.1
-                blocks.Last().Integrity = (blocks.Last().Len % 3) switch
+                blocks[^1].Integrity = (blocks[^1].Len % 3) switch
                 {
                     0 => Block.IntegrityType.Type0,
                     1 => Block.IntegrityType.Type1,
@@ -245,8 +245,8 @@ public class Opponent
                     _ => throw new ArgumentOutOfRangeException()
                 };
                 //如果类型是不完整则记录
-                if (blocks.Last().Integrity is not Block.IntegrityType.Type0)
-                    errBlocks.Add(blocks.Last());
+                if (blocks[^1].Integrity is not Block.IntegrityType.Type0)
+                    errBlocks.Add(blocks[^1]);
                 //若块序号达到(6 - 副露数)或有4个不完整型则无听
                 if (blocks.Count + Melds.Count is 6 || errBlocks.Count is 4)
                     return new List<Block>();
@@ -255,16 +255,16 @@ public class Opponent
             }
         //最后一块的记录无法写进循环
         {
-            blocks.Last().Len = Hands.Count - blocks.Last().FirstLoc;
-            blocks.Last().Integrity = (blocks.Last().Len % 3) switch
+            blocks[^1].Len = Hands.Count - blocks[^1].FirstLoc;
+            blocks[^1].Integrity = (blocks[^1].Len % 3) switch
             {
                 0 => Block.IntegrityType.Type0,
                 1 => Block.IntegrityType.Type1,
                 2 => Block.IntegrityType.Type2,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            if (blocks.Last().Integrity is not Block.IntegrityType.Type0)
-                errBlocks.Add(blocks.Last());
+            if (blocks[^1].Integrity is not Block.IntegrityType.Type0)
+                errBlocks.Add(blocks[^1]);
             if (errBlocks.Count is 4)
                 return new List<Block>();
         }

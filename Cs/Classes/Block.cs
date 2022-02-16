@@ -138,10 +138,10 @@ public class Block
             //当关系是连续，则记录多一个组
             if (hands.GetRelation(i) is 1)
             {
-                groups.Last().Len = i + 1 - groups.Last().Loc;
+                groups[^1].Len = i + 1 - groups[^1].Loc;
                 groups.Add(new(i + 1));
             }
-        groups.Last().Len = FirstLoc + Len - groups.Last().Loc;
+        groups[^1].Len = FirstLoc + Len - groups[^1].Loc;
         return groups;
     }
 
