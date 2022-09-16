@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Cs.Classes;
 
@@ -171,9 +170,9 @@ public class Block
             var tempHands = new List<Tile>();
             //重新复制所有牌
             for (var j = FirstLoc; j < FirstLoc + Len; ++j)
-                tempHands.Add(new Tile(hands[j].Val));
+                tempHands.Add(new(hands[j].Val));
             //插入尝试的牌
-            tempHands.TileIn(new Tile(tempTile));
+            tempHands.TileIn(new(tempTile));
             if (mode switch
             {
                 //雀面不完整型且遍历、去对后完整，则听牌
@@ -181,7 +180,7 @@ public class Block
                 //面子不完整型且遍历后完整，则听牌
                 false => tempBlock.IntegrityJudge(tempHands)
             })
-                yield return new Tile(tempTile);
+                yield return new(tempTile);
         }
     }
 

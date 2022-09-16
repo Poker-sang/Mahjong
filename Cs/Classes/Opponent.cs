@@ -31,7 +31,7 @@ public static class OpponentHelper
     /// <param name="hands">手牌</param>
     /// <param name="tile">进张</param>
     /// <returns>插入牌的位置</returns>
-    public static int TileIn(this List<Tile>hands, Tile tile)
+    public static int TileIn(this List<Tile> hands, Tile tile)
     {
         var ru = 0;
         //找到进张插入的位置
@@ -57,7 +57,7 @@ public class Opponent
     /// 牌河（舍张）
     /// </summary>
     private List<Tile> Discards { get; } = new(30);
-        
+
 
     /// <summary>
     /// 打牌
@@ -92,10 +92,21 @@ public class Opponent
     public List<Tile> ReadyHandJudge()
     {
         var readyHands = new List<Tile>();
+        var sevenPairsFlag = false;
 
         //如果没有副露（特殊牌型判断）
-        if (Melds.Count is 0 && ThirteenOrphansJudge().ToList() is { Count: not 0 } readyHandsList) 
-            return readyHandsList;
+        if (Melds.Count is 0)
+        {
+            if (ThirteenOrphansJudge().ToList() is { Count: not 0 } readyHandsList)
+                return readyHandsList;
+
+            if (SevenPairsJudge() is { } tile)
+            {
+                readyHands.Add(tile);
+                sevenPairsFlag = true;
+            }
+            //有可能复合二杯口，故听牌后不退出（会进入case 1或2）
+        }
 
         var errBlocks = GetBlocks();
 
@@ -103,7 +114,7 @@ public class Opponent
         switch (errBlocks.Count)
         {
             //有一块不完整型（一块雀面不完整型（3n+1））
-            //两杯口会在这里出现
+            //二杯口缺雀头会在这里出现
             case 1:
             {
                 //将此不完整型遍历
@@ -111,6 +122,7 @@ public class Opponent
                 break;
             }
             //有两块不完整型（一块面子不完整型（3n+2），一块雀头完整型（3n+2））
+            //二杯口缺面子会在这里出现
             case 2:
             {
                 if (errBlocks[1].IgnoreEyesJudge(Hands))
@@ -127,24 +139,24 @@ public class Opponent
                     .FindIndex(eyesBlock => eyesBlock.Integrity is Block.IntegrityType.Type2);
                 if (eyesIndex is 1 || !errBlocks[eyesIndex].IgnoreEyesJudge(Hands))
                     break;
-                    
-                    var joint = JointBlocks(errBlocks[2 - eyesIndex],
-                                                                    errBlocks[1]);
-                    if (joint is null)
-                        break;
-                    //如果该牌组完整，则记听一面
-                    if (joint.Value.JointedBlock.IntegrityJudge(joint.Value.JointedHands))
-                        readyHands.Add(joint.Value.MiddleTile);
-                    break;
-                }
-                //有两块不完整型（一块雀半完整型（3n），一块半不完整型（3n+1））
-                case 4:
-                {
-                    var joint = errBlocks[0].FirstLoc < errBlocks[1].FirstLoc ?
-                        JointBlocks(errBlocks[0], errBlocks[1]) :
-                        JointBlocks(errBlocks[1], errBlocks[0]);
 
-                if(joint is null)
+                var joint = JointBlocks(errBlocks[2 - eyesIndex],
+                    errBlocks[1]);
+                if (joint is null)
+                    break;
+                //如果该牌组完整，则记听一面
+                if (joint.Value.JointedBlock.IntegrityJudge(joint.Value.JointedHands))
+                    readyHands.Add(joint.Value.MiddleTile);
+                break;
+            }
+            //有两块不完整型（一块雀半完整型（3n），一块半不完整型（3n+1））
+            case 4:
+            {
+                var joint = errBlocks[0].FirstLoc < errBlocks[1].FirstLoc ?
+                    JointBlocks(errBlocks[0], errBlocks[1]) :
+                    JointBlocks(errBlocks[1], errBlocks[0]);
+
+                if (joint is null)
                     break;
                 //如果该牌组是雀头完整型，则记听一面
                 if (joint.Value.JointedBlock.IgnoreEyesJudge(joint.Value.JointedHands))
@@ -153,6 +165,10 @@ public class Opponent
                 break;
             }
         }
+
+        //如果有听（七对子），则为二杯口，删除七对子的听牌，否则会重复
+        if (sevenPairsFlag && readyHands.Count > 1) 
+            readyHands.RemoveAt(0);
         return readyHands;
     }
 
@@ -178,6 +194,35 @@ public class Opponent
         //插入一张中间隔的牌
         jointedHands.Insert(frontBlock.Len, tempReadyHands);
         return (jointedHands, jointedBlock, tempReadyHands);
+    }
+
+    /// <summary>
+    /// 七对牌型判断
+    /// </summary>
+    /// <returns>听的牌</returns>
+    private Tile? SevenPairsJudge()
+    {
+        //多出来的单张
+        var single = false;
+        //该单张牌位置
+        var singleTile = 0;
+        //判断相同或连续的关系
+        for (var i = 0; i < 12; ++i)
+            //如果偶数位关系对应不是相同，或奇数位不是其他关系（出现单张）
+            if (((i + (single ? 1 : 0)) % 2 ^ (Hands.GetRelation(i) > 0 ? 1 : 0)) > 0)
+            {
+                //直接异或运算无法排除龙七对
+                //如果这个错误关系是相同，则是龙七对；如果之前已经有单牌了，则不是七对子
+                if (Hands.GetRelation(i) is 0 || single)
+                    return null;
+
+                single = true;
+                singleTile = Hands[i].Val;
+            }
+
+        if (!single) //如果没查到单张
+            singleTile = Hands[12].Val; //那单张就是最后一个
+        return new Tile(singleTile); //记听一面
     }
 
     /// <summary>
@@ -216,10 +261,10 @@ public class Opponent
         }
         //若有多张，记听一面或记听一面（红中）（因为红中在最后不会被redundancy记录）
         if (redundancy)
-            yield return new Tile(shortage ? shortTile : 96);
+            yield return new(shortage ? shortTile : 96);
         //若不缺张则记听十三面
         else for (var i = 0; i < 13; ++i)
-            yield return new Tile(i / 8);
+                yield return new(i / 8);
     }
 
     /// <summary>
@@ -249,9 +294,9 @@ public class Opponent
                     errBlocks.Add(blocks[^1]);
                 //若块序号达到(6 - 副露数)或有4个不完整型则无听
                 if (blocks.Count + Melds.Count is 6 || errBlocks.Count is 4)
-                    return new List<Block>();
+                    return new();
                 //下一块，括号里是块内首张牌的序号
-                blocks.Add(new Block(i + 1));
+                blocks.Add(new(i + 1));
             }
         //最后一块的记录无法写进循环
         {
@@ -266,20 +311,20 @@ public class Opponent
             if (blocks[^1].Integrity is not Block.IntegrityType.Type0)
                 errBlocks.Add(blocks[^1]);
             if (errBlocks.Count is 4)
-                return new List<Block>();
+                return new();
         }
         //通过完整型Lv.1的块，筛选完整型Lv.2发现有一块不完整，则为不完整型加半不完整型，多于一块则无听
-        foreach (var block in blocks.Where(block => block.Integrity is Block.IntegrityType.Type0 
+        foreach (var block in blocks.Where(block => block.Integrity is Block.IntegrityType.Type0
                                                     && !block.IntegrityJudge(Hands)))
             if (errBlocks.Count is not 4)
             {
                 block.Integrity = Block.IntegrityType.TypeEx;
                 errBlocks.Add(block);
                 //特殊标记
-                errBlocks.Add(new Block(0));
-                errBlocks.Add(new Block(0));
+                errBlocks.Add(new(0));
+                errBlocks.Add(new(0));
             }
-            else return new List<Block>();
+            else return new();
         return errBlocks;
     }
 }
