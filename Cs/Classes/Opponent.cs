@@ -136,7 +136,7 @@ namespace Cs.Classes
                         break;
                     
                     var joint = JointBlocks(errBlocks[2 - eyesIndex],
-                                                                    errBlocks[3 - eyesIndex]);
+                                                                    errBlocks[1]);
                     if (joint is null)
                         break;
                     //如果该牌组完整，则记听一面
