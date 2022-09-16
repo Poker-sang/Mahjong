@@ -140,8 +140,9 @@ public class Opponent
                 if (eyesIndex is 1 || !errBlocks[eyesIndex].IgnoreEyesJudge(Hands))
                     break;
 
-                var joint = JointBlocks(errBlocks[2 - eyesIndex],
-                    errBlocks[1]);
+                var joint = eyesIndex is 0
+                    ? JointBlocks(errBlocks[1], errBlocks[2])
+                    : JointBlocks(errBlocks[0], errBlocks[1]);
                 if (joint is null)
                     break;
                 //如果该牌组完整，则记听一面
@@ -167,7 +168,7 @@ public class Opponent
         }
 
         //如果有听（七对子），则为二杯口，删除七对子的听牌，否则会重复
-        if (sevenPairsFlag && readyHands.Count > 1) 
+        if (sevenPairsFlag && readyHands.Count > 1)
             readyHands.RemoveAt(0);
         return readyHands;
     }
@@ -220,9 +221,12 @@ public class Opponent
                 singleTile = Hands[i].Val;
             }
 
-        if (!single) //如果没查到单张
-            singleTile = Hands[12].Val; //那单张就是最后一个
-        return new Tile(singleTile); //记听一面
+        //如果没查到单张
+        if (!single)
+            //那单张就是最后一个
+            singleTile = Hands[12].Val;
+        //记听一面
+        return new(singleTile);
     }
 
     /// <summary>
