@@ -124,7 +124,7 @@ public class Opponent
                 {
                     var joint = JointBlocks(blocks[index - 1], blocks[index]);
                     // 如果该牌组完整，则记听一面
-                    if (joint?.JointedBlock.IntegrityJudge(joint.Value.JointedHands) is true)
+                    if (joint?.JointedBlock.IgnoreEyesJudge(joint.Value.JointedHands) is true)
                         readyHands.Add(joint.Value.MiddleTile);
                 }
                 // 与后块连接
