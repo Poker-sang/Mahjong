@@ -118,7 +118,7 @@ public class Opponent
             {
                 // 将此不完整型遍历
                 readyHands.AddRange(errBlocks[0].Traversal(Hands, true));
-                var index = blocks.FindIndex(block => block == errBlocks[0]);
+                var index = blocks.IndexOf(errBlocks[0]);
                 // 与前块连接
                 if (index is not 0)
                 {
