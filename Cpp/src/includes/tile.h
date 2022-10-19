@@ -10,5 +10,5 @@ public:
 	/// </summary>
 	explicit tile(const int value) : value_{ value } {}
 	explicit operator int() const { return value_; }
-	friend void swap(tile*& x, tile*& y) noexcept { tile* z{ x }; x = y; y = z; }		//转移指针
+	friend void swap(tile*& x, tile*& y) noexcept { tile* z{ x }; x = y; y = z; }		// 转移指针
 };

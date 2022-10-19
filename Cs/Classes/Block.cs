@@ -60,11 +60,11 @@ public class Block
     {
         var groups = GetGroups(hands);
 
-        //在此时没用，但在和牌算符时会用到
+        // 在此时没用，但在和牌算符时会用到
         var blockTiles = new TileType[Len];
         for (var i = 0; i < blockTiles.Length; ++i)
             blockTiles[i] = TileType.Sequence;
-        //若有雀头，则将雀头认为是刻
+        // 若有雀头，则将雀头认为是刻
         if (eyesLoc is not -1)
         {
             ++groups[eyesLoc].Confirmed;
@@ -72,16 +72,16 @@ public class Block
             blockTiles[groups[eyesLoc].Loc - FirstLoc] = TileType.Triplet;
             blockTiles[groups[eyesLoc].Loc - FirstLoc + 1] = TileType.Triplet;
         }
-        //每次循环记录一个组
+        // 每次循环记录一个组
         for (var i = 0; i < groups.Count; ++i)
         {
-            //该组牌数
+            // 该组牌数
             switch (groups[i].Len - groups[i].Confirmed)
             {
-                //刚好全部确定
+                // 刚好全部确定
                 case 0:
                     continue;
-                //都是顺，确定后面2组分别有1张是顺
+                // 都是顺，确定后面2组分别有1张是顺
                 case 1:
                     if (groups.Count > i + 2)
                     {
@@ -90,7 +90,7 @@ public class Block
                         continue;
                     }
                     break;
-                //都是顺，确定后面2组分别有2张是顺
+                // 都是顺，确定后面2组分别有2张是顺
                 case 2:
                     if (groups.Count > i + 2)
                     {
@@ -101,7 +101,7 @@ public class Block
                         continue;
                     }
                     break;
-                //3刻1顺，确定后面2组分别有1张是顺
+                // 3刻1顺，确定后面2组分别有1张是顺
                 case 4:
                     if (groups.Count > i + 2)
                     {
@@ -113,13 +113,13 @@ public class Block
                         continue;
                     }
                     break;
-                //3张是刻
+                // 3张是刻
                 case 3:
                     blockTiles[groups[i].Loc - FirstLoc] = TileType.Triplet;
                     blockTiles[groups[i].Loc - FirstLoc + 1] = TileType.Triplet;
                     blockTiles[groups[i].Loc - FirstLoc + 2] = TileType.Triplet;
                     continue;
-                //可能是负数
+                // 可能是负数
                 default:
                     break;
             }
@@ -129,12 +129,17 @@ public class Block
         return true;
     }
 
+    /// <summary>
+    /// 获得分组
+    /// </summary>
+    /// <param name="hands"></param>
+    /// <returns></returns>
     private List<Group> GetGroups(List<Tile> hands)
     {
         var groups = new List<Group> { new(FirstLoc) };
-        //判断块内每个关系
+        // 判断块内每个关系
         for (var i = FirstLoc; i < FirstLoc + Len - 1; ++i)
-            //当关系是连续，则记录多一个组
+            // 当关系是连续，则记录多一个组
             if (hands.GetRelation(i) is 1)
             {
                 groups[^1].Len = i + 1 - groups[^1].Loc;
@@ -152,32 +157,32 @@ public class Block
     /// <returns>听的牌，可能本来它就不为空，不过在这里不影响（将来算符时可能改动）</returns>
     public IEnumerable<Tile> Traversal(List<Tile> hands, bool mode)
     {
-        //可能的首张牌
+        // 可能的首张牌
         var first = hands[FirstLoc].Val - 1;
-        //如果首张是一万、筒、索或字牌，则first没有前一张，加回hands[loc]
+        // 如果首张是一万、筒、索或字牌，则first没有前一张，加回hands[loc]
         if ((hands[FirstLoc].Val & 15) is 0 || hands[FirstLoc].Val / 8 > 5)
             ++first;
-        //可能的末张牌
+        // 可能的末张牌
         var last = hands[FirstLoc + Len - 1].Val + 1;
-        //如果末张是九万、筒、索或字牌，则得last没有后一张，减回hands[loc]
+        // 如果末张是九万、筒、索或字牌，则得last没有后一张，减回hands[loc]
         if ((hands[FirstLoc + Len - 1].Val & 15) is 8 || hands[FirstLoc + Len - 1].Val / 8 > 5)
             --last;
         var tempBlock = new Block(0) { Len = Len + 1 };
         var tempTile = first;
-        //每张牌都插入尝试一次（遍历）
+        // 每张牌都插入尝试一次（遍历）
         for (var i = 0; i < last - first + 1; ++i, ++tempTile)
         {
             var tempHands = new List<Tile>();
-            //重新复制所有牌
+            // 重新复制所有牌
             for (var j = FirstLoc; j < FirstLoc + Len; ++j)
                 tempHands.Add(new(hands[j].Val));
-            //插入尝试的牌
+            // 插入尝试的牌
             tempHands.TileIn(new(tempTile));
             if (mode switch
             {
-                //雀面不完整型且遍历、去对后完整，则听牌
+                // 雀面不完整型且遍历、去对后完整，则听牌
                 true => tempBlock.IgnoreEyesJudge(tempHands),
-                //面子不完整型且遍历后完整，则听牌
+                // 面子不完整型且遍历后完整，则听牌
                 false => tempBlock.IntegrityJudge(tempHands)
             })
                 yield return new(tempTile);
@@ -193,10 +198,10 @@ public class Block
     {
         for (int i = FirstLoc, tempGroupNum = 0; i < FirstLoc + Len - 1; ++i)
         {
-            //当关系是连续，则组数加一
+            // 当关系是连续，则组数加一
             if (hands.GetRelation(i) is 1)
                 ++tempGroupNum;
-            //当关系是相同，若是雀头完整型，则听牌
+            // 当关系是相同，若是雀头完整型，则听牌
             else if (IntegrityJudge(hands, tempGroupNum))
                 return true;
         }
