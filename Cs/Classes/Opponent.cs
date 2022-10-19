@@ -182,13 +182,6 @@ public class Opponent
 
                 break;
             }
-            // 有一块不完整型（一块雀面不完整型（3n+1）），但可以和前后的完整型连接
-            case 5:
-            {
-                // 将此不完整型遍历
-                readyHands.AddRange(errBlocks[0].Traversal(Hands, true));
-                break;
-            }
         }
 
         // 如果有听（七对子），则为二杯口，删除七对子的听牌，否则会重复
