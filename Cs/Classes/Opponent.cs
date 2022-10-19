@@ -201,6 +201,9 @@ public class Opponent
         // 判断连接的两块是否连续
         if (followBlock.FirstLoc - frontBlock.LastLoc is not 1)
             return null;
+        // 如果原来这两张牌中间不是隔一张，则无听
+        if (Hands.GetRelation(frontBlock.LastLoc) is not 2)
+            return null;
         // 临时记录中间隔的牌（可能是铳牌）
         var tempReadyHands = new Tile(Hands[frontBlock.LastLoc].Val + 1);
         // 临时用来判断的牌组

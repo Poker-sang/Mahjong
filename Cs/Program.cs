@@ -7,13 +7,10 @@ namespace Cs
         private static void Main(string[] args)
         {
             var a = new Opponent();
-            a.TileIn(new(5));
-            a.TileIn(new(7));
-            a.TileIn(new(7));
-            a.TileIn(new(7));
-            a.TileIn(new(32));
-            a.TileIn(new(39));
-            a.TileIn(new(39));
+            a.TileIn(new(22));
+            a.TileIn(new(23));
+            a.TileIn(new(24));
+            a.TileIn(new(38));
             // a.TileIn(new(22));
             // a.TileIn(new(40));
            // a.TileIn(new(40));
