@@ -1,46 +1,10 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cs.Helpers;
 
-namespace Cs.Classes;
+namespace Cs.Models;
 
-public static class OpponentHelper
-{
-    /// <summary>
-    /// 两张手牌间关系
-    /// </summary>
-    /// <param name="hands">手牌</param>
-    /// <param name="num">前张牌序号</param>
-    public static int GetRelation(this List<Tile> hands, int num)
-    {
-        try
-        {
-            return hands[num + 1].Val - hands[num].Val;
-        }
-        catch (Exception)
-        {
-            //（尽量大的数）
-            return int.MaxValue;
-        }
-    }
-
-    /// <summary>
-    /// 摸牌
-    /// </summary>
-    /// <param name="hands">手牌</param>
-    /// <param name="tile">进张</param>
-    /// <returns>插入牌的位置</returns>
-    public static int TileIn(this List<Tile> hands, Tile tile)
-    {
-        var ru = 0;
-        // 找到进张插入的位置
-        while (ru < hands.Count && tile.Val > hands[ru].Val)
-            ++ru;
-        hands.Insert(ru, tile);
-        return ru;
-    }
-}
 public class Opponent
 {
     /// <summary>
@@ -58,18 +22,19 @@ public class Opponent
     /// </summary>
     private List<Tile> Discards { get; } = new(30);
 
-
     /// <summary>
     /// 打牌
     /// </summary>
     /// <param name="index">打的牌的序号</param>
-    /// <param name="now">now</param>
-    public void TileOut(int index, ref Tile now)
+    public Tile TileOut(int index)
     {
-        now = Hands[index];
-        Discards.Add(Hands[index]); // 放入牌河
-        Hands.RemoveAt(index); // 删除元素
+        // 放入牌河
+        Discards.Add(Hands[index]);
+        // 删除元素
+        Hands.RemoveAt(index);
+        return Hands[index];
     }
+
     /// <summary>
     /// 摸牌
     /// </summary>
@@ -77,18 +42,20 @@ public class Opponent
     /// <returns>插入牌的位置</returns>
     public int TileIn(Tile tile)
     {
-        var ru = 0;
-        while (ru < Hands.Count && tile.Val > Hands[ru].Val) // 找到进张插入的位置
-            ++ru;
-        Hands.Insert(ru, tile); // 插入牌
-        return ru;
+        var index = 0;
+        // 找到进张插入的位置
+        while (index < Hands.Count && tile.Val > Hands[index].Val)
+            ++index;
+        // 插入牌
+        Hands.Insert(index, tile);
+        return index;
     }
 
     /// <summary>
     /// 听牌判断（在摸牌前判断）
     /// </summary>
     /// <returns>听的牌</returns>
-    public List<Tile> ReadyHandJudge()
+    public IEnumerable<Tile> ReadyHandJudge()
     {
         var readyHands = new List<Tile>();
         var sevenPairsFlag = false;
@@ -96,7 +63,7 @@ public class Opponent
         // 如果没有副露（特殊牌型判断）
         if (Melds.Count is 0)
         {
-            if (ThirteenOrphansJudge().ToList() is { Count: not 0 } readyHandsList)
+            if (ThirteenOrphansJudge().ToArray() is { Length: not 0 } readyHandsList)
                 return readyHandsList;
 
             if (SevenPairsJudge() is { } tile)
@@ -170,7 +137,7 @@ public class Opponent
             // 有两块不完整型（一块雀半完整型（3n），一块半不完整型（3n+1））
             case 4:
             {
-                var joint = errBlocks[0].FirstLoc < errBlocks[1].FirstLoc ?
+                var joint = errBlocks[0].Loc < errBlocks[1].Loc ?
                     JointBlocks(errBlocks[0], errBlocks[1]) :
                     JointBlocks(errBlocks[1], errBlocks[0]);
 
@@ -184,7 +151,7 @@ public class Opponent
             }
         }
 
-        // 如果有听（七对子），则为二杯口，删除七对子的听牌，否则会重复
+        // 如果是七对子，且听多张牌，则为二杯口，删除七对子的听牌，否则会重复
         if (sevenPairsFlag && readyHands.Count > 1)
             readyHands.RemoveAt(0);
         return readyHands;
@@ -195,11 +162,11 @@ public class Opponent
     /// </summary>
     /// <param name="frontBlock">前块</param>
     /// <param name="followBlock">后块</param>
-    /// <returns>连接后的牌、连接后的块、用来连接的牌</returns>
+    /// <returns>连接后的牌组、连接后的块、用来连接的牌</returns>
     private (List<Tile> JointedHands, Block JointedBlock, Tile MiddleTile)? JointBlocks(Block frontBlock, Block followBlock)
     {
         // 判断连接的两块是否连续
-        if (followBlock.FirstLoc - frontBlock.LastLoc is not 1)
+        if (followBlock.Loc - frontBlock.LastLoc is not 1)
             return null;
         // 如果原来这两张牌中间不是隔一张，则无听
         if (Hands.GetRelation(frontBlock.LastLoc) is not 2)
@@ -209,9 +176,9 @@ public class Opponent
         // 临时用来判断的牌组
         var jointedHands = new List<Tile>();
         // 这两块不完整型总张数
-        var jointedBlock = new Block(0) { Len = frontBlock.Len + 1 + followBlock.Len };
+        var jointedBlock = new Block(0, frontBlock.Len + 1 + followBlock.Len);
         // 复制该不完整型所有牌
-        jointedHands.AddRange(Hands.GetRange(frontBlock.FirstLoc, jointedBlock.Len - 1));
+        jointedHands.AddRange(Hands.GetRange(frontBlock.Loc, jointedBlock.Len - 1));
         // 插入一张中间隔的牌
         jointedHands.Insert(frontBlock.Len, tempReadyHands);
         return (jointedHands, jointedBlock, tempReadyHands);
@@ -256,63 +223,65 @@ public class Opponent
     private IEnumerable<Tile> ThirteenOrphansJudge()
     {
         // 是否缺了某张幺九牌（0或1）
-        var shortage = false;
+        var isMissing = false;
         // 是否多了某张幺九牌（0或1）
-        var redundancy = false;
-        var shortTile = 0; // 缺的幺九牌
+        var isRedundant = false;
+        // 缺的幺九牌
+        var missingTile = 0;
         // 判断十三张幺九牌的拥有情况
         for (var i = 0; i < 13; ++i)
         {
-            var temp = (shortage ? 1 : 0) - (redundancy ? 1 : 0);
-            // 如果和上张映射幺九牌一样
-            if (Hands[i].Val == (i + temp - 1) / 8)
+            var offset = (isMissing ? 1 : 0) - (isRedundant ? 1 : 0);
+            switch (0)
             {
-                // 如果之前已经有一个多的牌
-                if (redundancy)
+                // 如果和上张映射幺九牌一样
+                case 0 when Hands[i].Val == (i + offset - 1) / 8:
+                    // 如果之前已经有一个多的牌
+                    if (isRedundant)
+                        yield break;
+                    // 记录有多牌
+                    isRedundant = true;
+                    break;
+                // 如果和下张映射幺九牌一样
+                case 0 when Hands[i].Val == (i + offset + 1) / 8:
+                {
+                    // 如果之前已经有一个缺牌则不是国士，否则记录缺牌
+                    if (isMissing)
+                        yield break;
+                    isMissing = true;
+                    missingTile = i / 8;
+                    break;
+                }
+                // 有不是幺九牌即不符合国士
+                case 0 when Hands[i].Val != (i + offset) / 8:
                     yield break;
-                redundancy = true; // 记录有多牌
-            } // 如果和下张映射幺九牌一样
-            else if (Hands[i].Val == (i + temp + 1) / 8)
-            {
-                // 如果之前已经有一个缺牌则不是国士，否则记录缺牌
-                if (shortage)
-                    yield break;
-                shortage = true;
-                shortTile = i / 8;
-            } // 有不是幺九牌即不符合国士
-            else if (Hands[i].Val != (i + temp) / 8)
-                yield break;
+
+            }
         }
         // 若有多张，记听一面或记听一面（红中）（因为红中在最后不会被redundancy记录）
-        if (redundancy)
-            yield return new(shortage ? shortTile : 96);
+        if (isRedundant)
+            yield return new(isMissing ? missingTile : 96);
         // 若不缺张则记听十三面
-        else for (var i = 0; i < 13; ++i)
+        else
+            for (var i = 0; i < 13; ++i)
                 yield return new(i / 8);
     }
 
     /// <summary>
     /// 获取分块
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns>不完整的块数（最多3个）</returns>
     private List<Block> GetBlocks(out List<Block> blocks)
     {
         var errBlocks = new List<Block>(4);
-        blocks = new(6) { new(0) };
+        blocks = new(6);
+        var tempLoc = 0;
         for (var i = 0; i < Hands.Count - 1; ++i)
             // 当关系不是相同或连续
             if (Hands.GetRelation(i) > 1)
             {
-                // 记录上一块的长度
-                blocks[^1].Len = i - blocks[^1].FirstLoc + 1;
-                // 筛选完整型Lv.1
-                blocks[^1].Integrity = (blocks[^1].Len % 3) switch
-                {
-                    0 => Block.IntegrityType.Type0,
-                    1 => Block.IntegrityType.Type1,
-                    2 => Block.IntegrityType.Type2,
-                    _ => throw new ArgumentOutOfRangeException()
-                };
+                blocks.Add(new(tempLoc, i - tempLoc + 1));
                 // 如果类型是不完整则记录
                 if (blocks[^1].Integrity is not Block.IntegrityType.Type0)
                     errBlocks.Add(blocks[^1]);
@@ -320,18 +289,11 @@ public class Opponent
                 if (blocks.Count + Melds.Count is 6 || errBlocks.Count is 4)
                     return new();
                 // 下一块，括号里是块内首张牌的序号
-                blocks.Add(new(i + 1));
+                tempLoc = i + 1;
             }
-        // 最后一块的记录无法写进循环
+        // 最后一块的记录单独实现
         {
-            blocks[^1].Len = Hands.Count - blocks[^1].FirstLoc;
-            blocks[^1].Integrity = (blocks[^1].Len % 3) switch
-            {
-                0 => Block.IntegrityType.Type0,
-                1 => Block.IntegrityType.Type1,
-                2 => Block.IntegrityType.Type2,
-                _ => throw new ArgumentOutOfRangeException()
-            };
+            blocks.Add(new(tempLoc, Hands.Count - tempLoc));
             if (blocks[^1].Integrity is not Block.IntegrityType.Type0)
                 errBlocks.Add(blocks[^1]);
             if (errBlocks.Count is 4)
@@ -342,13 +304,13 @@ public class Opponent
                                                     && !block.IntegrityJudge(Hands)))
             if (errBlocks.Count is not 4)
             {
-                block.Integrity = Block.IntegrityType.TypeEx;
                 errBlocks.Add(block);
                 // 特殊标记
                 errBlocks.Add(new(0));
                 errBlocks.Add(new(0));
             }
-            else return new();
+            else
+                return new();
         return errBlocks;
     }
 }
