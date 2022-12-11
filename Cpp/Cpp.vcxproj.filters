@@ -11,27 +11,33 @@
     <Filter Include="includes">
       <UniqueIdentifier>{fcbfb662-8770-4d37-bf8d-7233af726766}</UniqueIdentifier>
     </Filter>
+    <Filter Include="includes\Enums">
+      <UniqueIdentifier>{b094bd43-01b1-47b7-8253-7ac59e377f8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\includes\e_meld.h">
+    <ClInclude Include="src\includes\Opponent.h">
       <Filter>includes</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\opponent.h">
+    <ClInclude Include="src\includes\Meld.h">
       <Filter>includes</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\e_wind.h">
+    <ClInclude Include="src\includes\Block.h">
       <Filter>includes</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\meld.h">
+    <ClInclude Include="src\includes\Tile.h">
       <Filter>includes</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\block.h">
+    <ClInclude Include="src\includes\Group.h">
       <Filter>includes</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\tile.h">
-      <Filter>includes</Filter>
+    <ClInclude Include="src\includes\MeldType.h">
+      <Filter>includes\Enums</Filter>
     </ClInclude>
-    <ClInclude Include="src\includes\group.h">
+    <ClInclude Include="src\includes\Wind.h">
+      <Filter>includes\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\OpponentHelper.h">
       <Filter>includes</Filter>
     </ClInclude>
   </ItemGroup>

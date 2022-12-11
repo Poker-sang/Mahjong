@@ -19,13 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\includes\e_meld.h" />
-    <ClInclude Include="src\includes\e_wind.h" />
-    <ClInclude Include="src\includes\group.h" />
-    <ClInclude Include="src\includes\opponent.h" />
-    <ClInclude Include="src\includes\meld.h" />
-    <ClInclude Include="src\includes\tile.h" />
-    <ClInclude Include="src\includes\block.h" />
+    <ClInclude Include="src\includes\MeldType.h" />
+    <ClInclude Include="src\includes\OpponentHelper.h" />
+    <ClInclude Include="src\includes\Wind.h" />
+    <ClInclude Include="src\includes\Group.h" />
+    <ClInclude Include="src\includes\Opponent.h" />
+    <ClInclude Include="src\includes\Meld.h" />
+    <ClInclude Include="src\includes\Tile.h" />
+    <ClInclude Include="src\includes\Block.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -128,6 +129,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

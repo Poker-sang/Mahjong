@@ -255,7 +255,6 @@ public class Opponent
                 // 有不是幺九牌即不符合国士
                 case 0 when Hands[i].Val != (i + offset) / 8:
                     yield break;
-
             }
         }
         // 若有多张，记听一面或记听一面（红中）（因为红中在最后不会被redundancy记录）
