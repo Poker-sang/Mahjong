@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cpp", "Cpp\Cpp.vcxproj", "{E5CE1130-4554-40FB-8EFB-8BB560B676DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cs", "Cs\Cs.csproj", "{5B767701-8071-4AB7-99C7-33925EC2F91D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cs", "Cs\Cs.csproj", "{5B767701-8071-4AB7-99C7-33925EC2F91D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MahjongHelper", "MahjongHelper\MahjongHelper.vcxproj", "{7A657781-7EFF-4146-86A8-F145E6B87439}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,18 @@ Global
 		{5B767701-8071-4AB7-99C7-33925EC2F91D}.Release|x64.Build.0 = Release|Any CPU
 		{5B767701-8071-4AB7-99C7-33925EC2F91D}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B767701-8071-4AB7-99C7-33925EC2F91D}.Release|x86.Build.0 = Release|Any CPU
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Debug|Any CPU.Build.0 = Debug|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Debug|x64.ActiveCfg = Debug|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Debug|x64.Build.0 = Debug|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Debug|x86.ActiveCfg = Debug|Win32
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Debug|x86.Build.0 = Debug|Win32
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Release|Any CPU.ActiveCfg = Release|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Release|Any CPU.Build.0 = Release|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Release|x64.ActiveCfg = Release|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Release|x64.Build.0 = Release|x64
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Release|x86.ActiveCfg = Release|Win32
+		{7A657781-7EFF-4146-86A8-F145E6B87439}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
