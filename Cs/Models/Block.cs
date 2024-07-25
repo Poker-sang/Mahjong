@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Cs.Helpers;
 using Cs.Interfaces;
@@ -194,12 +194,12 @@ public record Block : ISequential
         // 可能的首张牌
         var first = hands[Loc].Val - 1;
         // 如果首张是一万、筒、索或字牌，则first没有前一张
-        if ((hands[Loc].Val & 15) is 0 || hands[Loc].Val / 8 > 5)
+        if (hands[Loc].IntVal % 16 is 0 || hands[Loc].IntVal / 8 > 5)
             ++first;
         // 可能的末张牌
         var last = hands[Loc + Len - 1].Val + 1;
         // 如果末张是九万、筒、索或字牌，则得last没有后一张
-        if ((hands[Loc + Len - 1].Val & 15) is 8 || hands[Loc + Len - 1].Val / 8 > 5)
+        if (hands[Loc + Len - 1].IntVal % 16 is 8 || hands[Loc + Len - 1].IntVal / 8 > 5)
             --last;
         var tempBlock = new Block(0, Len + 1);
         var tempTile = first;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cs.Helpers;
@@ -49,6 +49,16 @@ public class Opponent
         // 插入牌
         Hands.Insert(index, tile);
         return index;
+    }
+
+    /// <summary>
+    /// 验证算法时，根据现有手牌数量添加副露
+    /// </summary>
+    public void DebugAddMelds()
+    {
+        var melds = 4 - (Hands.Count - 1) / 3;
+        for (var i = 0; i < melds; i++)
+            Melds.Add(new(default));
     }
 
     /// <summary>
@@ -193,7 +203,7 @@ public class Opponent
         // 多出来的单张
         var single = false;
         // 该单张牌位置
-        var singleTile = 0;
+        var singleTile = default(Tile.TileValue);
         // 判断相同或连续的关系
         for (var i = 0; i < 12; ++i)
             // 如果偶数位关系对应不是相同，或奇数位不是其他关系（出现单张）
@@ -213,7 +223,7 @@ public class Opponent
             // 那单张就是最后一个
             singleTile = Hands[12].Val;
         // 记听一面
-        return new(singleTile);
+        return singleTile;
     }
 
     /// <summary>
@@ -227,7 +237,7 @@ public class Opponent
         // 是否多了某张幺九牌（0或1）
         var isRedundant = false;
         // 缺的幺九牌
-        var missingTile = 0;
+        var missingTile = default(Tile.TileValue);
         // 判断十三张幺九牌的拥有情况
         for (var i = 0; i < 13; ++i)
         {
@@ -235,7 +245,7 @@ public class Opponent
             switch (0)
             {
                 // 如果和上张映射幺九牌一样
-                case 0 when Hands[i].Val == (i + offset - 1) / 8:
+                case 0 when Hands[i].IntVal == (i + offset - 1) * 8:
                     // 如果之前已经有一个多的牌
                     if (isRedundant)
                         yield break;
@@ -243,27 +253,27 @@ public class Opponent
                     isRedundant = true;
                     break;
                 // 如果和下张映射幺九牌一样
-                case 0 when Hands[i].Val == (i + offset + 1) / 8:
+                case 0 when Hands[i].IntVal == (i + offset + 1) * 8:
                 {
                     // 如果之前已经有一个缺牌则不是国士，否则记录缺牌
                     if (isMissing)
                         yield break;
                     isMissing = true;
-                    missingTile = i / 8;
+                    missingTile = (Tile.TileValue)(i * 8);
                     break;
                 }
                 // 有不是幺九牌即不符合国士
-                case 0 when Hands[i].Val != (i + offset) / 8:
+                case 0 when Hands[i].IntVal != (i + offset) * 8:
                     yield break;
             }
         }
         // 若有多张，记听一面或记听一面（红中）（因为红中在最后不会被redundancy记录）
         if (isRedundant)
-            yield return new(isMissing ? missingTile : 96);
+            yield return isMissing ? missingTile : Tile.TileValue.CRed;
         // 若不缺张则记听十三面
         else
             for (var i = 0; i < 13; ++i)
-                yield return new(i / 8);
+                yield return (Tile.TileValue)(i * 8);
     }
 
     /// <summary>
@@ -286,7 +296,7 @@ public class Opponent
                     errBlocks.Add(blocks[^1]);
                 // 若块序号达到(6 - 副露数)或有4个不完整型则无听
                 if (blocks.Count + Melds.Count is 6 || errBlocks.Count is 4)
-                    return new();
+                    return [];
                 // 下一块，括号里是块内首张牌的序号
                 tempLoc = i + 1;
             }
@@ -296,7 +306,7 @@ public class Opponent
             if (blocks[^1].Integrity is not Block.IntegrityType.Type0)
                 errBlocks.Add(blocks[^1]);
             if (errBlocks.Count is 4)
-                return new();
+                return [];
         }
         // 通过完整型Lv.1的块，筛选完整型Lv.2发现有一块不完整，则为不完整型加半不完整型，多于一块则无听
         foreach (var block in blocks.Where(block => block.Integrity is Block.IntegrityType.Type0
@@ -309,7 +319,7 @@ public class Opponent
                 errBlocks.Add(new(0));
             }
             else
-                return new();
+                return [];
         return errBlocks;
     }
 }

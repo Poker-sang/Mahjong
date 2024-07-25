@@ -12,59 +12,59 @@ class Opponent {
 
 public:
     /// <summary>
-    /// ÊÖÅÆÇø
+    /// æ‰‹ç‰ŒåŒº
     /// </summary>
     TileList Hands = {};
 
     /// <summary>
-    /// ¸±Â¶Çø
+    /// å‰¯éœ²åŒº
     /// </summary>
     std::vector<Meld> Melds = {};
 
     /// <summary>
-    /// ÅÆºÓ£¨ÉáÕÅ£©
+    /// ç‰Œæ²³ï¼ˆèˆå¼ ï¼‰
     /// </summary>
     TileList Discards = {};
 
     /// <summary>
-    /// ´òÅÆ
+    /// æ‰“ç‰Œ
     /// </summary>
-    /// <param name="index">´òµÄÅÆµÄĞòºÅ</param>
+    /// <param name="index">æ‰“çš„ç‰Œçš„åºå·</param>
     Tile TileOut(const int index)
     {
-        // ·ÅÈëÅÆºÓ
+        // æ”¾å…¥ç‰Œæ²³
         Discards.emplace_back(Hands[index]);
-        // É¾³ıÔªËØ
+        // åˆ é™¤å…ƒç´ 
         Hands.erase(Hands.begin() + index);
         return Hands[index];
     }
 
     /// <summary>
-    /// ÃşÅÆ
+    /// æ‘¸ç‰Œ
     /// </summary>
-    /// <param name="tile">½øÕÅ</param>
-    /// <returns>²åÈëÅÆµÄÎ»ÖÃ</returns>
+    /// <param name="tile">è¿›å¼ </param>
+    /// <returns>æ’å…¥ç‰Œçš„ä½ç½®</returns>
     int TileIn(Tile tile)
     {
         auto index = 0;
-        // ÕÒµ½½øÕÅ²åÈëµÄÎ»ÖÃ
+        // æ‰¾åˆ°è¿›å¼ æ’å…¥çš„ä½ç½®
         while (index < static_cast<int>(Hands.size()) && tile.Value > Hands[index].Value)
             ++index;
-        // ²åÈëÅÆ
+        // æ’å…¥ç‰Œ
         Hands.emplace(Hands.begin() + index, tile);
         return index;
     }
 
     /// <summary>
-    /// ÌıÅÆÅĞ¶Ï£¨ÔÚÃşÅÆÇ°ÅĞ¶Ï£©
+    /// å¬ç‰Œåˆ¤æ–­ï¼ˆåœ¨æ‘¸ç‰Œå‰åˆ¤æ–­ï¼‰
     /// </summary>
-    /// <returns>ÌıµÄÅÆ</returns>
+    /// <returns>å¬çš„ç‰Œ</returns>
     [[nodiscard]] TileList ReadyHandJudge() const
     {
         auto readyHands = TileList();
         auto sevenPairsFlag = false;
 
-        // Èç¹ûÃ»ÓĞ¸±Â¶£¨ÌØÊâÅÆĞÍÅĞ¶Ï£©
+        // å¦‚æœæ²¡æœ‰å‰¯éœ²ï¼ˆç‰¹æ®Šç‰Œå‹åˆ¤æ–­ï¼‰
         if (Melds.empty()) {
             if (auto readyHandsList = ThirteenOrphansJudge(); !readyHandsList.empty())
                 return readyHandsList;
@@ -73,38 +73,38 @@ public:
                 readyHands.emplace_back(tile->Value);
                 sevenPairsFlag = true;
             }
-            // ÓĞ¿ÉÄÜ¸´ºÏ¶ş±­¿Ú£¬¹ÊÌıÅÆºó²»ÍË³ö£¨»á½øÈëcase 1»ò2£©
+            // æœ‰å¯èƒ½å¤åˆäºŒæ¯å£ï¼Œæ•…å¬ç‰Œåä¸é€€å‡ºï¼ˆä¼šè¿›å…¥case 1æˆ–2ï¼‰
         }
         auto blocks = std::vector<Block>();
         auto errBlocks = GetBlocks(blocks);
 
-        // ²»ÍêÕûĞÍ¿éÊı
+        // ä¸å®Œæ•´å‹å—æ•°
         switch (errBlocks.size()) {
-        // ÓĞÒ»¿é²»ÍêÕûĞÍ£¨Ò»¿éÈ¸Ãæ²»ÍêÕûĞÍ£¨3n+1£©£©
-        // ¶ş±­¿ÚÈ±È¸Í·»áÔÚÕâÀï³öÏÖ
+        // æœ‰ä¸€å—ä¸å®Œæ•´å‹ï¼ˆä¸€å—é›€é¢ä¸å®Œæ•´å‹ï¼ˆ3n+1ï¼‰ï¼‰
+        // äºŒæ¯å£ç¼ºé›€å¤´ä¼šåœ¨è¿™é‡Œå‡ºç°
         case 1: {
-            // ½«´Ë²»ÍêÕûĞÍ±éÀú
+            // å°†æ­¤ä¸å®Œæ•´å‹éå†
             readyHands.append_range(errBlocks[0].Traversal(Hands, true));
             const auto index = std::ranges::find_if(blocks, [errBlocks](const Block block) { return block.Loc == errBlocks[0].Loc; }) - blocks.begin();
-            // ÓëÇ°¿éÁ¬½Ó
+            // ä¸å‰å—è¿æ¥
             if (index != 0) {
                 const auto joint = JointBlocks(blocks[index - 1], blocks[index]);
-                // Èç¹û¸ÃÅÆ×éÍêÕû£¬Ôò¼ÇÌıÒ»Ãæ
+                // å¦‚æœè¯¥ç‰Œç»„å®Œæ•´ï¼Œåˆ™è®°å¬ä¸€é¢
                 if (joint != nullptr && std::get<1>(*joint).IgnoreEyesJudge(std::get<0>(*joint)) == true)
                     readyHands.emplace_back(std::get<2>(*joint));
             }
-            // Óëºó¿éÁ¬½Ó
+            // ä¸åå—è¿æ¥
             if (index != static_cast<long long>(blocks.size()) - 1) {
                 const auto joint = JointBlocks(blocks[index], blocks[index + 1]);
-                // Èç¹û¸ÃÅÆ×éÊÇÈ¸Í·ÍêÕûĞÍ£¬Ôò¼ÇÌıÒ»Ãæ
+                // å¦‚æœè¯¥ç‰Œç»„æ˜¯é›€å¤´å®Œæ•´å‹ï¼Œåˆ™è®°å¬ä¸€é¢
                 if (joint != nullptr && std::get<1>(*joint).IgnoreEyesJudge(std::get<0>(*joint)) == true)
                     readyHands.emplace_back(std::get<2>(*joint));
             }
 
             break;
         }
-        // ÓĞÁ½¿é²»ÍêÕûĞÍ£¨Ò»¿éÃæ×Ó²»ÍêÕûĞÍ£¨3n+2£©£¬Ò»¿éÈ¸Í·ÍêÕûĞÍ£¨3n+2£©£©
-        // ¶ş±­¿ÚÈ±Ãæ×Ó»áÔÚÕâÀï³öÏÖ
+        // æœ‰ä¸¤å—ä¸å®Œæ•´å‹ï¼ˆä¸€å—é¢å­ä¸å®Œæ•´å‹ï¼ˆ3n+2ï¼‰ï¼Œä¸€å—é›€å¤´å®Œæ•´å‹ï¼ˆ3n+2ï¼‰ï¼‰
+        // äºŒæ¯å£ç¼ºé¢å­ä¼šåœ¨è¿™é‡Œå‡ºç°
         case 2: {
             if (errBlocks[1].IgnoreEyesJudge(Hands))
                 readyHands.append_range(errBlocks[0].Traversal(Hands, false));
@@ -112,9 +112,9 @@ public:
                 readyHands.append_range(errBlocks[1].Traversal(Hands, false));
             break;
         }
-        // ÓĞÈı¿é²»ÍêÕûĞÍ£¨Á½¿é°ë²»ÍêÕûĞÍ£¨3n+1£©£¬Ò»¿éÈ¸Í·ÍêÕûĞÍ£¨3n+2£©£©
+        // æœ‰ä¸‰å—ä¸å®Œæ•´å‹ï¼ˆä¸¤å—åŠä¸å®Œæ•´å‹ï¼ˆ3n+1ï¼‰ï¼Œä¸€å—é›€å¤´å®Œæ•´å‹ï¼ˆ3n+2ï¼‰ï¼‰
         case 3: {
-            // Èç¹û3n+2µÄ²»ÍêÕûĞÍ¼ĞÔÚÖĞ¼ä»ò²»ÊÇÈ¸Í·ÍêÕûĞÍ£¬ÔòÎŞÌı
+            // å¦‚æœ3n+2çš„ä¸å®Œæ•´å‹å¤¹åœ¨ä¸­é—´æˆ–ä¸æ˜¯é›€å¤´å®Œæ•´å‹ï¼Œåˆ™æ— å¬
             const auto eyesIndex = std::ranges::find_if(errBlocks, [](const Block eyesBlock) { return eyesBlock.Integrity == Block::IntegrityType::Type2; }) - errBlocks.begin();
 
             if (eyesIndex == 1 || !errBlocks[eyesIndex].IgnoreEyesJudge(Hands))
@@ -125,12 +125,12 @@ public:
                 : JointBlocks(errBlocks[0], errBlocks[1]);
             if (joint == nullptr)
                 break;
-            // Èç¹û¸ÃÅÆ×éÍêÕû£¬Ôò¼ÇÌıÒ»Ãæ
+            // å¦‚æœè¯¥ç‰Œç»„å®Œæ•´ï¼Œåˆ™è®°å¬ä¸€é¢
             if (std::get<1>(*joint).IntegrityJudge(std::get<0>(*joint)))
                 readyHands.emplace_back(std::get<2>(*joint));
             break;
         }
-        // ÓĞÁ½¿é²»ÍêÕûĞÍ£¨Ò»¿éÈ¸°ëÍêÕûĞÍ£¨3n£©£¬Ò»¿é°ë²»ÍêÕûĞÍ£¨3n+1£©£©
+        // æœ‰ä¸¤å—ä¸å®Œæ•´å‹ï¼ˆä¸€å—é›€åŠå®Œæ•´å‹ï¼ˆ3nï¼‰ï¼Œä¸€å—åŠä¸å®Œæ•´å‹ï¼ˆ3n+1ï¼‰ï¼‰
         case 4: {
             const auto joint = errBlocks[0].Loc < errBlocks[1].Loc
                 ? JointBlocks(errBlocks[0], errBlocks[1])
@@ -138,7 +138,7 @@ public:
 
             if (joint == nullptr)
                 break;
-            // Èç¹û¸ÃÅÆ×éÊÇÈ¸Í·ÍêÕûĞÍ£¬Ôò¼ÇÌıÒ»Ãæ
+            // å¦‚æœè¯¥ç‰Œç»„æ˜¯é›€å¤´å®Œæ•´å‹ï¼Œåˆ™è®°å¬ä¸€é¢
             if (std::get<1>(*joint).IgnoreEyesJudge(std::get<0>(*joint)))
                 readyHands.emplace_back(std::get<2>(*joint));
 
@@ -148,55 +148,55 @@ public:
             break;
         }
 
-        // Èç¹ûÊÇÆß¶Ô×Ó£¬ÇÒÌı¶àÕÅÅÆ£¬ÔòÎª¶ş±­¿Ú£¬É¾³ıÆß¶Ô×ÓµÄÌıÅÆ£¬·ñÔò»áÖØ¸´
+        // å¦‚æœæ˜¯ä¸ƒå¯¹å­ï¼Œä¸”å¬å¤šå¼ ç‰Œï¼Œåˆ™ä¸ºäºŒæ¯å£ï¼Œåˆ é™¤ä¸ƒå¯¹å­çš„å¬ç‰Œï¼Œå¦åˆ™ä¼šé‡å¤
         if (sevenPairsFlag && readyHands.size() > 1)
             readyHands.erase(readyHands.begin());
         return readyHands;
     }
 
     /// <summary>
-    /// Á¬½ÓÁ½¿é
+    /// è¿æ¥ä¸¤å—
     /// </summary>
-    /// <param name="frontBlock">Ç°¿é</param>
-    /// <param name="followBlock">ºó¿é</param>
-    /// <returns>Á¬½ÓºóµÄÅÆ×é¡¢Á¬½ÓºóµÄ¿é¡¢ÓÃÀ´Á¬½ÓµÄÅÆ</returns>
+    /// <param name="frontBlock">å‰å—</param>
+    /// <param name="followBlock">åå—</param>
+    /// <returns>è¿æ¥åçš„ç‰Œç»„ã€è¿æ¥åçš„å—ã€ç”¨æ¥è¿æ¥çš„ç‰Œ</returns>
     [[nodiscard]] std::shared_ptr<std::tuple<TileList, Block, Tile>> JointBlocks(const Block frontBlock, const Block followBlock) const
     {
-        // ÅĞ¶ÏÁ¬½ÓµÄÁ½¿éÊÇ·ñÁ¬Ğø
+        // åˆ¤æ–­è¿æ¥çš„ä¸¤å—æ˜¯å¦è¿ç»­
         if (followBlock.Loc - frontBlock.LastLoc() != 1)
             return nullptr;
-        // Èç¹ûÔ­À´ÕâÁ½ÕÅÅÆÖĞ¼ä²»ÊÇ¸ôÒ»ÕÅ£¬ÔòÎŞÌı
+        // å¦‚æœåŸæ¥è¿™ä¸¤å¼ ç‰Œä¸­é—´ä¸æ˜¯éš”ä¸€å¼ ï¼Œåˆ™æ— å¬
         if (GetRelation(Hands, frontBlock.LastLoc()) != 2)
             return nullptr;
-        // ÁÙÊ±¼ÇÂ¼ÖĞ¼ä¸ôµÄÅÆ£¨¿ÉÄÜÊÇï¥ÅÆ£©
+        // ä¸´æ—¶è®°å½•ä¸­é—´éš”çš„ç‰Œï¼ˆå¯èƒ½æ˜¯é“³ç‰Œï¼‰
         auto tempReadyHands = Tile(Hands[frontBlock.LastLoc()].Value + 1);
-        // ÁÙÊ±ÓÃÀ´ÅĞ¶ÏµÄÅÆ×é
+        // ä¸´æ—¶ç”¨æ¥åˆ¤æ–­çš„ç‰Œç»„
 
-        // ÕâÁ½¿é²»ÍêÕûĞÍ×ÜÕÅÊı
+        // è¿™ä¸¤å—ä¸å®Œæ•´å‹æ€»å¼ æ•°
         auto jointedBlock = Block(0, frontBlock.Len + 1 + followBlock.Len);
-        // ¸´ÖÆ¸Ã²»ÍêÕûĞÍËùÓĞÅÆ
+        // å¤åˆ¶è¯¥ä¸å®Œæ•´å‹æ‰€æœ‰ç‰Œ
         auto jointedHands = TileList(Hands.begin() + frontBlock.Loc, Hands.begin() + jointedBlock.Len - 1);
-        // ²åÈëÒ»ÕÅÖĞ¼ä¸ôµÄÅÆ
+        // æ’å…¥ä¸€å¼ ä¸­é—´éš”çš„ç‰Œ
         jointedHands.insert(jointedHands.begin() + frontBlock.Len, tempReadyHands);
         return std::make_shared<std::tuple<TileList, Block, Tile>>(jointedHands, jointedBlock, tempReadyHands);
     }
 
     /// <summary>
-    /// Æß¶ÔÅÆĞÍÅĞ¶Ï
+    /// ä¸ƒå¯¹ç‰Œå‹åˆ¤æ–­
     /// </summary>
-    /// <returns>ÌıµÄÅÆ</returns>
+    /// <returns>å¬çš„ç‰Œ</returns>
     [[nodiscard]] std::shared_ptr<Tile> SevenPairsJudge() const
     {
-        // ¶à³öÀ´µÄµ¥ÕÅ
+        // å¤šå‡ºæ¥çš„å•å¼ 
         auto single = false;
-        // ¸Ãµ¥ÕÅÅÆÎ»ÖÃ
+        // è¯¥å•å¼ ç‰Œä½ç½®
         auto singleTile = 0;
-        // ÅĞ¶ÏÏàÍ¬»òÁ¬ĞøµÄ¹ØÏµ
+        // åˆ¤æ–­ç›¸åŒæˆ–è¿ç»­çš„å…³ç³»
         for (auto i = 0; i < 12; ++i)
-            // Èç¹ûÅ¼ÊıÎ»¹ØÏµ¶ÔÓ¦²»ÊÇÏàÍ¬£¬»òÆæÊıÎ»²»ÊÇÆäËû¹ØÏµ£¨³öÏÖµ¥ÕÅ£©
+            // å¦‚æœå¶æ•°ä½å…³ç³»å¯¹åº”ä¸æ˜¯ç›¸åŒï¼Œæˆ–å¥‡æ•°ä½ä¸æ˜¯å…¶ä»–å…³ç³»ï¼ˆå‡ºç°å•å¼ ï¼‰
             if (((i + (single ? 1 : 0)) % 2 ^ (GetRelation(Hands, i) > 0 ? 1 : 0)) > 0) {
-                // Ö±½ÓÒì»òÔËËãÎŞ·¨ÅÅ³ıÁúÆß¶Ô
-                // Èç¹ûÕâ¸ö´íÎó¹ØÏµÊÇÏàÍ¬£¬ÔòÊÇÁúÆß¶Ô£»Èç¹ûÖ®Ç°ÒÑ¾­ÓĞµ¥ÅÆÁË£¬Ôò²»ÊÇÆß¶Ô×Ó
+                // ç›´æ¥å¼‚æˆ–è¿ç®—æ— æ³•æ’é™¤é¾™ä¸ƒå¯¹
+                // å¦‚æœè¿™ä¸ªé”™è¯¯å…³ç³»æ˜¯ç›¸åŒï¼Œåˆ™æ˜¯é¾™ä¸ƒå¯¹ï¼›å¦‚æœä¹‹å‰å·²ç»æœ‰å•ç‰Œäº†ï¼Œåˆ™ä¸æ˜¯ä¸ƒå¯¹å­
                 if (GetRelation(Hands, i) == 0 || single)
                     return nullptr;
 
@@ -204,85 +204,85 @@ public:
                 singleTile = Hands[i].Value;
             }
 
-        // Èç¹ûÃ»²éµ½µ¥ÕÅ
+        // å¦‚æœæ²¡æŸ¥åˆ°å•å¼ 
         if (!single)
-            // ÄÇµ¥ÕÅ¾ÍÊÇ×îºóÒ»¸ö
+            // é‚£å•å¼ å°±æ˜¯æœ€åä¸€ä¸ª
             singleTile = Hands[12].Value;
-        // ¼ÇÌıÒ»Ãæ
+        // è®°å¬ä¸€é¢
         return std::make_shared<Tile>(singleTile);
     }
 
     /// <summary>
-    /// ¹úÊ¿ÅÆĞÍÅĞ¶Ï
+    /// å›½å£«ç‰Œå‹åˆ¤æ–­
     /// </summary>
-    /// <returns>ÌıÅÆ</returns>
+    /// <returns>å¬ç‰Œ</returns>
     [[nodiscard]] TileList ThirteenOrphansJudge() const
     {
-        // ÊÇ·ñÈ±ÁËÄ³ÕÅçÛ¾ÅÅÆ£¨0»ò1£©
+        // æ˜¯å¦ç¼ºäº†æŸå¼ å¹ºä¹ç‰Œï¼ˆ0æˆ–1ï¼‰
         auto isMissing = false;
-        // ÊÇ·ñ¶àÁËÄ³ÕÅçÛ¾ÅÅÆ£¨0»ò1£©
+        // æ˜¯å¦å¤šäº†æŸå¼ å¹ºä¹ç‰Œï¼ˆ0æˆ–1ï¼‰
         auto isRedundant = false;
-        // È±µÄçÛ¾ÅÅÆ
+        // ç¼ºçš„å¹ºä¹ç‰Œ
         auto missingTile = 0;
         auto readyHands = TileList();
-        // ÅĞ¶ÏÊ®ÈıÕÅçÛ¾ÅÅÆµÄÓµÓĞÇé¿ö
+        // åˆ¤æ–­åä¸‰å¼ å¹ºä¹ç‰Œçš„æ‹¥æœ‰æƒ…å†µ
         for (auto i = 0; i < 13; ++i) {
             const auto offset = (isMissing ? 1 : 0) - (isRedundant ? 1 : 0);
-            // Èç¹ûºÍÉÏÕÅÓ³ÉäçÛ¾ÅÅÆÒ»Ñù
-            if (Hands[i].Value == (i + offset - 1) / 8) {
-                // Èç¹ûÖ®Ç°ÒÑ¾­ÓĞÒ»¸ö¶àµÄÅÆ
+            // å¦‚æœå’Œä¸Šå¼ æ˜ å°„å¹ºä¹ç‰Œä¸€æ ·
+            if (Hands[i].Value == (i + offset - 1) * 8) {
+                // å¦‚æœä¹‹å‰å·²ç»æœ‰ä¸€ä¸ªå¤šçš„ç‰Œ
                 if (isRedundant)
                     return readyHands;
-                // ¼ÇÂ¼ÓĞ¶àÅÆ
+                // è®°å½•æœ‰å¤šç‰Œ
                 isRedundant = true;
             }
-            // Èç¹ûºÍÏÂÕÅÓ³ÉäçÛ¾ÅÅÆÒ»Ñù
-            else if (Hands[i].Value == (i + offset + 1) / 8) {
-                // Èç¹ûÖ®Ç°ÒÑ¾­ÓĞÒ»¸öÈ±ÅÆÔò²»ÊÇ¹úÊ¿£¬·ñÔò¼ÇÂ¼È±ÅÆ
+            // å¦‚æœå’Œä¸‹å¼ æ˜ å°„å¹ºä¹ç‰Œä¸€æ ·
+            else if (Hands[i].Value == (i + offset + 1) * 8) {
+                // å¦‚æœä¹‹å‰å·²ç»æœ‰ä¸€ä¸ªç¼ºç‰Œåˆ™ä¸æ˜¯å›½å£«ï¼Œå¦åˆ™è®°å½•ç¼ºç‰Œ
                 if (isMissing)
                     return readyHands;
                 isMissing = true;
-                missingTile = i / 8;
+                missingTile = i * 8;
             }
-            // ÓĞ²»ÊÇçÛ¾ÅÅÆ¼´²»·ûºÏ¹úÊ¿
-            else if (Hands[i].Value != (i + offset) / 8)
+            // æœ‰ä¸æ˜¯å¹ºä¹ç‰Œå³ä¸ç¬¦åˆå›½å£«
+            else if (Hands[i].Value != (i + offset) * 8)
                 return readyHands;
         }
 
-        // ÈôÓĞ¶àÕÅ£¬¼ÇÌıÒ»Ãæ»ò¼ÇÌıÒ»Ãæ£¨ºìÖĞ£©£¨ÒòÎªºìÖĞÔÚ×îºó²»»á±»redundancy¼ÇÂ¼£©
+        // è‹¥æœ‰å¤šå¼ ï¼Œè®°å¬ä¸€é¢æˆ–è®°å¬ä¸€é¢ï¼ˆçº¢ä¸­ï¼‰ï¼ˆå› ä¸ºçº¢ä¸­åœ¨æœ€åä¸ä¼šè¢«redundancyè®°å½•ï¼‰
         if (isRedundant)
             readyHands.emplace_back(isMissing ? missingTile : 96);
-        // Èô²»È±ÕÅÔò¼ÇÌıÊ®ÈıÃæ
+        // è‹¥ä¸ç¼ºå¼ åˆ™è®°å¬åä¸‰é¢
         else
             for (auto i = 0; i < 13; ++i)
-                readyHands.emplace_back(i / 8);
+                readyHands.emplace_back(i * 8);
         return readyHands;
     }
 
     /// <summary>
-    /// »ñÈ¡·Ö¿é
+    /// è·å–åˆ†å—
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    /// <returns>²»ÍêÕûµÄ¿éÊı£¨×î¶à3¸ö£©</returns>
+    /// <returns>ä¸å®Œæ•´çš„å—æ•°ï¼ˆæœ€å¤š3ä¸ªï¼‰</returns>
     std::vector<Block> GetBlocks(std::vector<Block>& blocks) const
     {
         auto errBlocks = std::vector<Block>();
         blocks.reserve(6);
         auto tempLoc = 0;
         for (auto i = 0; i < static_cast<int>(Hands.size()) - 1; ++i)
-            // µ±¹ØÏµ²»ÊÇÏàÍ¬»òÁ¬Ğø
+            // å½“å…³ç³»ä¸æ˜¯ç›¸åŒæˆ–è¿ç»­
             if (GetRelation(Hands, i) > 1) {
                 blocks.emplace_back(tempLoc, i - tempLoc + 1);
-                // Èç¹ûÀàĞÍÊÇ²»ÍêÕûÔò¼ÇÂ¼
+                // å¦‚æœç±»å‹æ˜¯ä¸å®Œæ•´åˆ™è®°å½•
                 if (blocks.back().Integrity != Block::IntegrityType::Type0)
                     errBlocks.emplace_back(blocks.back());
-                // Èô¿éĞòºÅ´ïµ½(6 - ¸±Â¶Êı)»òÓĞ4¸ö²»ÍêÕûĞÍÔòÎŞÌı
+                // è‹¥å—åºå·è¾¾åˆ°(6 - å‰¯éœ²æ•°)æˆ–æœ‰4ä¸ªä¸å®Œæ•´å‹åˆ™æ— å¬
                 if (blocks.size() + Melds.size() == 6 || errBlocks.size() == 4)
                     return {};
-                // ÏÂÒ»¿é£¬À¨ºÅÀïÊÇ¿éÄÚÊ×ÕÅÅÆµÄĞòºÅ
+                // ä¸‹ä¸€å—ï¼Œæ‹¬å·é‡Œæ˜¯å—å†…é¦–å¼ ç‰Œçš„åºå·
                 tempLoc = i + 1;
             }
-        // ×îºóÒ»¿éµÄ¼ÇÂ¼µ¥¶ÀÊµÏÖ
+        // æœ€åä¸€å—çš„è®°å½•å•ç‹¬å®ç°
         {
             blocks.emplace_back(tempLoc, Hands.size() - tempLoc);
             if (blocks.back().Integrity != Block::IntegrityType::Type0)
@@ -290,13 +290,13 @@ public:
             if (errBlocks.size() == 4)
                 return {};
         }
-        // Í¨¹ıÍêÕûĞÍLv.1µÄ¿é£¬É¸Ñ¡ÍêÕûĞÍLv.2·¢ÏÖÓĞÒ»¿é²»ÍêÕû£¬ÔòÎª²»ÍêÕûĞÍ¼Ó°ë²»ÍêÕûĞÍ£¬¶àÓÚÒ»¿éÔòÎŞÌı
+        // é€šè¿‡å®Œæ•´å‹Lv.1çš„å—ï¼Œç­›é€‰å®Œæ•´å‹Lv.2å‘ç°æœ‰ä¸€å—ä¸å®Œæ•´ï¼Œåˆ™ä¸ºä¸å®Œæ•´å‹åŠ åŠä¸å®Œæ•´å‹ï¼Œå¤šäºä¸€å—åˆ™æ— å¬
         for (auto& block : blocks) {
             if (block.Integrity == Block::IntegrityType::Type0
                 && !block.IntegrityJudge(Hands)) {
                 if (errBlocks.size() != 4) {
                     errBlocks.emplace_back(block);
-                    // ÌØÊâ±ê¼Ç
+                    // ç‰¹æ®Šæ ‡è®°
                     errBlocks.emplace_back(0);
                     errBlocks.emplace_back(0);
                 } else

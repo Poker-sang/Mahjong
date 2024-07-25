@@ -2,13 +2,9 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
-        <StartupObject></StartupObject>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
+        <LangVersion>preview</LangVersion>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Folder Include="Interfaces\" />
-    </ItemGroup>
 
 </Project>

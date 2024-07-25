@@ -119,20 +119,20 @@ inline List<Tile ^> ^ Opponent::ThirteenOrphansJudge()
     for (auto i = 0; i < 13; ++i) {
         const auto temp = (shortage ? 1 : 0) - (redundancy ? 1 : 0);
         // 如果和上张映射幺九牌一样
-        if (Hands[i]->Val == (i + temp - 1) / 8) {
+        if (Hands[i]->Val == (i + temp - 1) * 8) {
             // 如果之前已经有一个多的牌
             if (redundancy)
                 return tempReturn;
             redundancy = true; // 记录有多牌
         } // 如果和下张映射幺九牌一样
-        else if (Hands[i]->Val == (i + temp + 1) / 8) {
+        else if (Hands[i]->Val == (i + temp + 1) * 8) {
             // 如果之前已经有一个缺牌则不是国士，否则记录缺牌
             if (shortage)
                 return tempReturn;
             shortage = true;
-            shortTile = i / 8;
+            shortTile = i * 8;
         } // 有不是幺九牌即不符合国士
-        else if (Hands[i]->Val != (i + temp) / 8)
+        else if (Hands[i]->Val != (i + temp) * 8)
             return tempReturn;
     }
     // 若有多张，记听一面或记听一面（红中）（因为红中在最后不会被redundancy记录）
@@ -141,7 +141,7 @@ inline List<Tile ^> ^ Opponent::ThirteenOrphansJudge()
     // 若不缺张则记听十三面
     else
         for (auto i = 0; i < 13; ++i)
-            tempReturn->Add(new Tile(i / 8));
+            tempReturn->Add(new Tile(i * 8));
     return tempReturn;
 }
 

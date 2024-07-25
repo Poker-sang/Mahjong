@@ -6,56 +6,56 @@
 #include "Tile.h"
 
 /// <summary>
-/// ¿é£¨ÆäÖĞÅÆ¹ØÏµÖ»ÓĞÏàÍ¬»òÁ¬Ğø£©
+/// å—ï¼ˆå…¶ä¸­ç‰Œå…³ç³»åªæœ‰ç›¸åŒæˆ–è¿ç»­ï¼‰
 /// </summary>
 class Block {
 public:
     /// <summary>
-    /// ¿éÄÚÊ×ÕÅÅÆµÄĞòºÅ
+    /// å—å†…é¦–å¼ ç‰Œçš„åºå·
     /// </summary>
     int Loc { 0 };
 
     /// <summary>
-    /// ¿éÄÚÅÆÊı£¨ÖÁÉÙÒ»ÕÅ£©
+    /// å—å†…ç‰Œæ•°ï¼ˆè‡³å°‘ä¸€å¼ ï¼‰
     /// </summary>
     int Len { 1 };
 
     /// <summary>
-    /// ÍêÕûÀàĞÍ
+    /// å®Œæ•´ç±»å‹
     /// </summary>
     enum class IntegrityType {
         /// <summary>
-        /// ÍêÕûĞÍ
+        /// å®Œæ•´å‹
         /// </summary>
         /// <remarks>3n</remarks>
         Type0,
 
         /// <summary>
-        /// È¸Ãæ²»ÍêÕûĞÍ»ò°ë²»ÍêÕûĞÍ
+        /// é›€é¢ä¸å®Œæ•´å‹æˆ–åŠä¸å®Œæ•´å‹
         /// </summary>
         /// <remarks>3n+1</remarks>
         Type1,
 
         /// <summary>
-        /// È¸Í·²»ÍêÕûĞÍ»òÃæ×Ó²»ÍêÕûĞÍ
+        /// é›€å¤´ä¸å®Œæ•´å‹æˆ–é¢å­ä¸å®Œæ•´å‹
         /// </summary>
         /// <remarks>3n+2</remarks>
         Type2,
 
         /// <summary>
-        /// È¸°ë²»ÍêÕûĞÍ
+        /// é›€åŠä¸å®Œæ•´å‹
         /// </summary>
         /// <remarks>3n</remarks>
         TypeEx
     };
 
     /// <summary>
-    /// ÍêÕûĞÔ
+    /// å®Œæ•´æ€§
     /// </summary>
     IntegrityType Integrity;
 
     /// <summary>
-    /// ¿éÄÚÄ©ÕÅÅÆµÄĞòºÅ
+    /// å—å†…æœ«å¼ ç‰Œçš„åºå·
     /// </summary>
     [[nodiscard]] int LastLoc() const { return Loc + Len - 1; }
 
@@ -67,31 +67,31 @@ public:
     }
 
     /// <summary>
-    /// É¸Ñ¡ÍêÕûĞÍLv.2
+    /// ç­›é€‰å®Œæ•´å‹Lv.2
     /// </summary>
-    /// <param name="hands">ÅĞ¶ÏµÄÅÆ×é</param>
-    /// <param name="eyesLoc">È¸Í·µÄĞòºÅ£¨-1ÎªÃ»ÓĞÈ¸Í·£©</param>
+    /// <param name="hands">åˆ¤æ–­çš„ç‰Œç»„</param>
+    /// <param name="eyesLoc">é›€å¤´çš„åºå·ï¼ˆ-1ä¸ºæ²¡æœ‰é›€å¤´ï¼‰</param>
     bool IntegrityJudge(const TileList& hands, const int eyesLoc = -1)
     {
         auto groups = GetGroups(hands);
 
-        // ÔÚ´Ë´¦Ã»ÓÃ£¬µ«ÔÚºÍÅÆËã·ûÊ±»áÓÃµ½
+        // åœ¨æ­¤å¤„æ²¡ç”¨ï¼Œä½†åœ¨å’Œç‰Œç®—ç¬¦æ—¶ä¼šç”¨åˆ°
         std::vector blockTiles(Len, TileType::Sequence);
-        // ÈôÓĞÈ¸Í·£¬Ôò½«È¸Í·ÈÏÎªÊÇ¿Ì
+        // è‹¥æœ‰é›€å¤´ï¼Œåˆ™å°†é›€å¤´è®¤ä¸ºæ˜¯åˆ»
         if (eyesLoc != -1) {
             ++groups[eyesLoc].Confirmed;
             ++groups[eyesLoc].Confirmed;
             blockTiles[groups[eyesLoc].Loc - Loc] = TileType::Triplet;
             blockTiles[groups[eyesLoc].Loc - Loc + 1] = TileType::Triplet;
         }
-        // Ã¿´ÎÑ­»·¼ÇÂ¼Ò»¸ö×é
+        // æ¯æ¬¡å¾ªç¯è®°å½•ä¸€ä¸ªç»„
         for (auto i = 0; i < static_cast<int>(groups.size()); ++i) {
-            // ¸Ã×éÅÆÊı
+            // è¯¥ç»„ç‰Œæ•°
             switch (groups[i].Len - groups[i].Confirmed) {
-            // ¸ÕºÃÈ«²¿È·¶¨
+            // åˆšå¥½å…¨éƒ¨ç¡®å®š
             case 0:
                 continue;
-            // ¶¼ÊÇË³£¬È·¶¨ºóÃæ2×é·Ö±ğÓĞ1ÕÅÊÇË³
+            // éƒ½æ˜¯é¡ºï¼Œç¡®å®šåé¢2ç»„åˆ†åˆ«æœ‰1å¼ æ˜¯é¡º
             case 1:
                 if (static_cast<int>(groups.size()) > i + 2) {
                     ++groups[i + 1].Confirmed;
@@ -99,7 +99,7 @@ public:
                     continue;
                 }
                 break;
-            // ¶¼ÊÇË³£¬È·¶¨ºóÃæ2×é·Ö±ğÓĞ2ÕÅÊÇË³
+            // éƒ½æ˜¯é¡ºï¼Œç¡®å®šåé¢2ç»„åˆ†åˆ«æœ‰2å¼ æ˜¯é¡º
             case 2:
                 if (static_cast<int>(groups.size()) > i + 2) {
                     ++groups[i + 1].Confirmed;
@@ -109,7 +109,7 @@ public:
                     continue;
                 }
                 break;
-            // 3¿Ì1Ë³£¬È·¶¨ºóÃæ2×é·Ö±ğÓĞ1ÕÅÊÇË³
+            // 3åˆ»1é¡ºï¼Œç¡®å®šåé¢2ç»„åˆ†åˆ«æœ‰1å¼ æ˜¯é¡º
             case 4:
                 if (static_cast<int>(groups.size()) > i + 2) {
                     ++groups[i + 1].Confirmed;
@@ -120,13 +120,13 @@ public:
                     continue;
                 }
                 break;
-            // 3ÕÅÊÇ¿Ì
+            // 3å¼ æ˜¯åˆ»
             case 3:
                 blockTiles[groups[i].Loc - Loc] = TileType::Triplet;
                 blockTiles[groups[i].Loc - Loc + 1] = TileType::Triplet;
                 blockTiles[groups[i].Loc - Loc + 2] = TileType::Triplet;
                 continue;
-            // ¿ÉÄÜÊÇ¸ºÊı
+            // å¯èƒ½æ˜¯è´Ÿæ•°
             default:
                 break;
             }
@@ -137,17 +137,17 @@ public:
     }
 
     /// <summary>
-    /// È¥¶Ô£¨È¸Í·ÍêÕûĞÍ£©
+    /// å»å¯¹ï¼ˆé›€å¤´å®Œæ•´å‹ï¼‰
     /// </summary>
-    /// <param name="hands">ÅĞ¶ÏµÄÅÆ×é</param>
-    /// <returns>ÊÇ·ñÌıÅÆ</returns>
+    /// <param name="hands">åˆ¤æ–­çš„ç‰Œç»„</param>
+    /// <returns>æ˜¯å¦å¬ç‰Œ</returns>
     bool IgnoreEyesJudge(const TileList& hands)
     {
         for (auto i = Loc, tempGroupNum = 0; i < Loc + Len - 1; ++i) {
-            // µ±¹ØÏµÊÇÁ¬Ğø£¬Ôò×éÊı¼ÓÒ»
+            // å½“å…³ç³»æ˜¯è¿ç»­ï¼Œåˆ™ç»„æ•°åŠ ä¸€
             if (GetRelation(hands, i) == 1)
                 ++tempGroupNum;
-            // µ±¹ØÏµÊÇÏàÍ¬£¬ÈôÊÇÈ¸Í·ÍêÕûĞÍ£¬ÔòÌıÅÆ
+            // å½“å…³ç³»æ˜¯ç›¸åŒï¼Œè‹¥æ˜¯é›€å¤´å®Œæ•´å‹ï¼Œåˆ™å¬ç‰Œ
             else if (IntegrityJudge(hands, tempGroupNum) == true)
                 return true;
         }
@@ -155,35 +155,35 @@ public:
     }
 
     /// <summary>
-    /// ±éÀú
+    /// éå†
     /// </summary>
-    /// <param name="hands">ÅĞ¶ÏµÄÅÆ×é</param>
-    /// <param name="mode">¼ÙÎªÃæ×Ó²»ÍêÕûĞÍ£¬ÕæÎªÈ«²»ÍêÕûĞÍ</param>
-    /// <returns>ÊÇ·ñÌıÅÆ</returns>
+    /// <param name="hands">åˆ¤æ–­çš„ç‰Œç»„</param>
+    /// <param name="mode">å‡ä¸ºé¢å­ä¸å®Œæ•´å‹ï¼ŒçœŸä¸ºå…¨ä¸å®Œæ•´å‹</param>
+    /// <returns>æ˜¯å¦å¬ç‰Œ</returns>
     [[nodiscard]] TileList Traversal(const TileList& hands, const bool mode) const
     {
-        // ¿ÉÄÜµÄÊ×ÕÅÅÆ
+        // å¯èƒ½çš„é¦–å¼ ç‰Œ
         auto first = hands[Loc].Value - 1;
-        // Èç¹ûÊ×ÕÅÊÇÒ»Íò¡¢Í²¡¢Ë÷»ò×ÖÅÆ£¬ÔòfirstÃ»ÓĞÇ°Ò»ÕÅ
-        if ((hands[Loc].Value & 15) == 0 || hands[Loc].Value / 8 > 5)
+        // å¦‚æœé¦–å¼ æ˜¯ä¸€ä¸‡ã€ç­’ã€ç´¢æˆ–å­—ç‰Œï¼Œåˆ™firstæ²¡æœ‰å‰ä¸€å¼ 
+        if (hands[Loc].Value % 16 == 0 || hands[Loc].Value / 8 > 5)
             ++first;
-        // ¿ÉÄÜµÄÄ©ÕÅÅÆ
+        // å¯èƒ½çš„æœ«å¼ ç‰Œ
         auto last = hands[Loc + Len - 1].Value + 1;
-        // Èç¹ûÄ©ÕÅÊÇ¾ÅÍò¡¢Í²¡¢Ë÷»ò×ÖÅÆ£¬ÔòµÃlastÃ»ÓĞºóÒ»ÕÅ
-        if ((hands[Loc + Len - 1].Value & 15) == 8 || hands[Loc + Len - 1].Value / 8 > 5)
+        // å¦‚æœæœ«å¼ æ˜¯ä¹ä¸‡ã€ç­’ã€ç´¢æˆ–å­—ç‰Œï¼Œåˆ™å¾—lastæ²¡æœ‰åä¸€å¼ 
+        if (hands[Loc + Len - 1].Value % 16 == 8 || hands[Loc + Len - 1].Value / 8 > 5)
             --last;
         auto tempBlock = Block(0, Len + 1);
         auto tempTile = first;
         auto readyHands = TileList();
-        // Ã¿ÕÅÅÆ¶¼²åÈë³¢ÊÔÒ»´Î£¨±éÀú£©
+        // æ¯å¼ ç‰Œéƒ½æ’å…¥å°è¯•ä¸€æ¬¡ï¼ˆéå†ï¼‰
         for (auto i = 0; i < last - first + 1; ++i, ++tempTile) {
-            // ÖØĞÂ¸´ÖÆËùÓĞÅÆ
+            // é‡æ–°å¤åˆ¶æ‰€æœ‰ç‰Œ
             auto tempHands = std::vector(hands.begin() + Loc, hands.begin() + Loc + Len);
-            // ²åÈë³¢ÊÔµÄÅÆ
+            // æ’å…¥å°è¯•çš„ç‰Œ
             TileIn(tempHands, Tile(tempTile));
-            if (mode // È¸Ãæ²»ÍêÕûĞÍÇÒ±éÀú¡¢È¥¶ÔºóÍêÕû£¬ÔòÌıÅÆ
+            if (mode // é›€é¢ä¸å®Œæ•´å‹ä¸”éå†ã€å»å¯¹åå®Œæ•´ï¼Œåˆ™å¬ç‰Œ
                     ? tempBlock.IgnoreEyesJudge(tempHands)
-                    // Ãæ×Ó²»ÍêÕûĞÍÇÒ±éÀúºóÍêÕû£¬ÔòÌıÅÆ
+                    // é¢å­ä¸å®Œæ•´å‹ä¸”éå†åå®Œæ•´ï¼Œåˆ™å¬ç‰Œ
                     : tempBlock.IntegrityJudge(tempHands))
                 readyHands.emplace_back(tempTile);
         }
@@ -192,7 +192,7 @@ public:
 
 private:
     /// <summary>
-    /// »ñµÃ·Ö×é
+    /// è·å¾—åˆ†ç»„
     /// </summary>
     /// <param name="hands"></param>
     /// <returns></returns>
@@ -200,9 +200,9 @@ private:
     {
         auto tempLoc = Loc;
         auto group = std::vector<Group>();
-        // ÅĞ¶Ï¿éÄÚÃ¿¸ö¹ØÏµ
+        // åˆ¤æ–­å—å†…æ¯ä¸ªå…³ç³»
         for (auto i = Loc; i < Loc + Len - 1; ++i)
-            // µ±¹ØÏµÊÇÁ¬Ğø£¬Ôò¼ÇÂ¼¶àÒ»¸ö×é
+            // å½“å…³ç³»æ˜¯è¿ç»­ï¼Œåˆ™è®°å½•å¤šä¸€ä¸ªç»„
             if (GetRelation(hands, i) == 1) {
                 group.emplace_back(tempLoc, i + 1 - tempLoc);
                 tempLoc = i + 1;
@@ -212,16 +212,16 @@ private:
     }
 
     /// <summary>
-    /// Ã¿ÕÅÅÆµÄÀàĞÍ
+    /// æ¯å¼ ç‰Œçš„ç±»å‹
     /// </summary>
     enum class TileType {
         /// <summary>
-        /// Ë³
+        /// é¡º
         /// </summary>
         Sequence,
 
         /// <summary>
-        /// ¿Ì»òÈ¸Í·
+        /// åˆ»æˆ–é›€å¤´
         /// </summary>
         Triplet
     };
